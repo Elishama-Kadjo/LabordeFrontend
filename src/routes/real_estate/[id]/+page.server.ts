@@ -5,13 +5,11 @@ import { type Actions } from '@sveltejs/kit';
 
 import { error, redirect } from '@sveltejs/kit';
 import { reconstructToken } from '$lib/components/utils/func/hash';
-import { SECRET_KEY } from '$env/static/private';
 import { fail, superValidate } from 'sveltekit-superforms';
 import { FormContactSchema } from '$lib/components/app/contact/contact';
 import { zod } from 'sveltekit-superforms/adapters';
 
 export const load = (async ({ params, cookies }) => {
-    let idRealEstate: string | null = null;
     let real_estate = {} as RealEstateDetail;
     let isLiked: boolean = false;
 
@@ -21,49 +19,31 @@ export const load = (async ({ params, cookies }) => {
         'Content-Type': 'application/json',
     };
 
-    const token = cookies.get('wb')
-    let token_recupered: string | null = null;
+    let token_recupered: string | null = reconstructToken(cookies)
     // Ajouter l'Authorization seulement si le token est présent
-    if (token) {
-        token_recupered = reconstructToken(cookies, SECRET_KEY)
+    if (token_recupered) {
+        token_recupered = reconstructToken(cookies)
         headers['Authorization'] = `Bearer ${token_recupered}`;
     }
 
-    // Récupération de l'ID du Real Estate
-    const fetchGetRealEstateId = await fetch(`${env.URL_API}/api/single/realestate/${params.id}/`, {
-        method: "GET",
-        headers: {
-            'Content-Type': 'application/json',
-        }
+    // Récupération des détails du Real Estate
+
+    //TODO: J'ai expliquer dans le backend que j'ai plus de raison d'utiliser le getId 
+    const response = await fetch(`${env.URL_API}/api/getrealestate/${params.id}/`, {
+        method: 'GET',
+        headers: headers
     });
 
-    if (fetchGetRealEstateId.ok) {
-        const data = await fetchGetRealEstateId.json();
-        if (data.exists) {
-            idRealEstate = data.id;
-        } else {
-            throw error(404, "Le real estate n'existe pas !");
-        }
-    } else {
-        throw error(500, "Le serveur ne répond pas !");
+    if (response.ok) {
+        real_estate = await response.json();
+    } else if(response.status === 404){
+        throw error(404, "Le real estate n'existe pas !");
+
+    } else{
+        throw error(500, "Impossible de récupérer les détails du bien immobilier !");
     }
 
-
-    // Récupération des détails du Real Estate
-    if (idRealEstate) {
-        const response = await fetch(`${env.URL_API}/api/getrealestate/${idRealEstate}/`, {
-            method: 'GET',
-            headers: headers
-        });
-
-        if (response.ok) {
-            real_estate = await response.json();
-        } else {
-            throw error(500, "Impossible de récupérer les détails du bien immobilier !");
-        }
-    }
-
-    if (token) {
+    if (token_recupered) {
         // Vérification si l'utilisateur a liké ce bien immobilier
         const fetchGetRealEstateLikedId = await fetch(`${env.URL_API}/api/single/realestate/${params.id}/favorite/`, {
             method: "GET",
@@ -90,12 +70,9 @@ export const load = (async ({ params, cookies }) => {
 
 export const actions = {
     like: async ({ request, locals, params, cookies }) => {
-        const token = cookies.get('wb');
+        const token_recupered = reconstructToken(cookies)
 
-        if (token) {
-            const token_recupered = reconstructToken(cookies, SECRET_KEY)
-
-
+        if (token_recupered) {
             const formData = await request.formData()
 
             const idRealEstate = formData.get("idRealEstate")
@@ -117,11 +94,9 @@ export const actions = {
     },
 
     unlike: async ({ request, locals, params, cookies }) => {
-        const token = cookies.get('wb');
+        const token_recupered = reconstructToken(cookies)
 
-        if (token) {
-
-            const token_recupered = reconstructToken(cookies, SECRET_KEY)
+        if (token_recupered) {
 
             const formData = await request.formData()
 

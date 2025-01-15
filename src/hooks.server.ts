@@ -2,9 +2,14 @@
 import { env } from '$env/dynamic/private';
 import type { Handle } from '@sveltejs/kit';
 import type { User } from './app';
-import { characters, reconstructToken, symbols } from '$lib/components/utils/func/hash';
-import { SECRET_KEY } from '$env/static/private';
-import { get } from 'svelte/store';
+import { reconstructToken, removeTokenCookies as RemoveToken, storeTokenInCookies } from '$lib/components/utils/func/hash';
+
+
+//TODO: on doit revoir le systeme de cookie et proposer quelque chose de plus optimal
+// Le web n'accepete plus ce type.
+
+// J'ai implementer seulement pour le acces_token
+// le refresh est toujours dans le _wbr_
 
 const getUser = async (access_token: string | undefined) => {
     const response = await fetch(`${env.URL_API}/api/v0/auth/user/`, {
@@ -22,19 +27,15 @@ const getUser = async (access_token: string | undefined) => {
     throw new Error("impossible de récuperer l'utilisateur !")
 }
 
-async function ClearCookie(event: any) {
-    event.cookies.delete('access_token', { path: "/" })
-    event.cookies.delete('refresh_token', { path: "/" })
+async function removeTokenCookies(event: any) {
+    RemoveToken(event.cookies);
+    event.cookies.delete('_wbr_', { path: "/" })
 }
 
 async function setCookie(event: any, token: string | null, refresh: string | undefined) {
 
-    if (token) {
-        event.cookies.set('wb', token, {
-            path: '/',
-            httpOnly: true, // Garantir que le cookie est inaccessible au client côté JavaScript
-            maxAge: 60 * 60   // Durée de vie en secondes
-        });
+    if(token){
+        storeTokenInCookies(token, event.cookies);
     }
 
     if (refresh) {
@@ -49,28 +50,7 @@ async function setCookie(event: any, token: string | null, refresh: string | und
 
 // Helper function to clear authentication cookies
 async function clearCookies(event: any): Promise<void> {
-    await event.cookies.set('wb', '', {
-        httpOnly: true,
-        path: '/',
-        expires: new Date(0)
-    });
-
-    await event.cookies.set('_wbr_', '', {
-        httpOnly: true,
-        sameSite: 'strict',
-        path: '/',
-        expires: new Date(0)
-    });
-
-    for (let i = 0; i < 7; i++) {
-        const cookieName = `${characters[i]}_${symbols[i]}${String.fromCharCode(97 + i)}_`;
-        event.cookies.set(cookieName, '', {
-            httpOnly: true,
-            path: '/',
-            maxAge: 0 // Expirer immédiatement
-        });
-    }      
-
+    await removeTokenCookies(event);
 }
 
 async function verifyToken(token: string) {
@@ -104,19 +84,9 @@ async function refreshToken(token: string | undefined) {
 
 export const handle: Handle = async ({ event, resolve }) => {
 
-    let token_recupered: string | null = null;
-
-    if(event.cookies.get("wb")) {
-        token_recupered = reconstructToken(event.cookies, SECRET_KEY)
-    }
-
+    let token_recupered: string | null = reconstructToken(event.cookies) ?? ""; 
+    
     const refresh_token = event.cookies.get('_wbr_');
-
-    // s'il n'y a pas d'access_token
-    if (!token_recupered) {
-        console.log("Il y'a pas d'access token !!")
-        return resolve(event);
-    }
 
     // vérification si l'access_token est valide
     try {

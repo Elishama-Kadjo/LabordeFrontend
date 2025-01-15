@@ -6,7 +6,8 @@
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
 
-	let { data }: { data: PageData } = $props();
+	export let data : PageData;
+
 
 	const { form, errors, delayed, enhance } = superForm(data?.form, {
 		dataType: 'json',

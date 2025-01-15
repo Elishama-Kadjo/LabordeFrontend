@@ -11,8 +11,7 @@ export const load = (async ({ cookies, locals }) => {
         throw redirect(303, "/login")
     }
 
-    const token = cookies.get('wb');
-    const token_recupered = reconstructToken(cookies, SECRET_KEY)
+    const token_recupered = reconstructToken(cookies);
 
     let favorites: RealEstate[] = [];
 

@@ -1,9 +1,8 @@
 <script lang="ts">
-	import { encryptText, decryptText } from '$lib/components/utils/func/hash';
 	import type { PageData } from './$types';
 
-	let { data }: { data: PageData } = $props();
 
+	export let data : PageData;
 	// let textToEncrypt = '';
 	// let encryptedText = '';
 	// let decryptedText = '';

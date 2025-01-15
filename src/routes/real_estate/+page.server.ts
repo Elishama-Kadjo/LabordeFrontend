@@ -3,21 +3,18 @@ import type { PageServerLoad } from './$types';
 import { env } from '$env/dynamic/private';
 import { error } from '@sveltejs/kit';
 import { reconstructToken } from '$lib/components/utils/func/hash';
-import { SECRET_KEY } from '$env/static/private';
 
 export const load = (async ({ cookies, locals }) => {
     let real_estates: RealEstate[] = [];
 
-    const token = cookies.get('wb');
-    let token_recupered: string | null = null;
+    let token_recupered: string | null = reconstructToken(cookies)
 
     const headers: Record<string, string> = {
         'Content-Type': 'application/json',
     };
 
     // Ajouter l'Authorization seulement si le token est présent
-    if (token) {
-        token_recupered = reconstructToken(cookies, SECRET_KEY)
+    if (token_recupered) {
         headers['Authorization'] = `Bearer ${token_recupered}`;
     }
 

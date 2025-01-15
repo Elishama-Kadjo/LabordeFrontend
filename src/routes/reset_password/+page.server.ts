@@ -7,9 +7,6 @@ import { env } from '$env/dynamic/private';
 import { reconstructToken } from '$lib/components/utils/func/hash';
 
 export const load = (async ({ fetch, cookies, locals }) => {
-    if (cookies.get("wb")) {
-        throw redirect(303, "/")
-    }
 
     if (locals.user) {
         throw redirect(303, "/")
@@ -52,6 +49,7 @@ export const actions: Actions = {
                     status: 404
                 })
             } else if(response.status === 400) {
+                //TODO: je te conseille pas de donner des informations comme ça à l'utilisateur.
                 return message(form, {
                     type: "erreur",
                     text: "l'email n'existe pas",

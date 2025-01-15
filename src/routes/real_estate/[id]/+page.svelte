@@ -14,9 +14,10 @@
 	import { goto } from '$app/navigation';
 	import { enhance } from '$app/forms';
 
-	let { data }: { data: PageData } = $props();
+	export let data : PageData;
 
-	let liked: boolean = $state(data?.isLiked);
+
+	let liked: boolean = data?.isLiked;
 
 	function truncate(text: string, maxLength: number) {
 		return text.length > maxLength ? text.slice(0, maxLength) + '...' : text;
@@ -81,7 +82,7 @@
 					method="POST"
 					action="?/unlike"
 					use:enhance={async ({ formData: FormData }) => {
-						FormData.append('idRealEstate', data?.real_estate?.id);
+						FormData.append('idRealEstate', data?.real_estate?.slug);
 
 						return async ({ result }) => {
 							console.log('type unlike: ', result.type)
@@ -100,7 +101,7 @@
 					method="POST"
 					action="?/like"
 					use:enhance={async ({ formData: FormData }) => {
-						FormData.append('idRealEstate', data?.real_estate?.id);
+						FormData.append('idRealEstate', data?.real_estate?.slug);
 
 						return async ({ result }) => {
 							console.log('type like: ', result.type)
@@ -175,7 +176,7 @@
 					{#if data?.real_estate?.description?.length || 0 > 300}
 						<button
 							class="mt-2 text-sm font-medium text-[#1A4C62] hover:underline"
-							onclick={toggleExpand}
+							on:click={toggleExpand}
 						>
 							Voir plus
 						</button>
@@ -223,14 +224,14 @@
 				<p class="mt-2 text-sm text-gray-600">Contactez-nous pour plus d'informations.</p>
 				{#if $page.data.user}
 					<button
-						onclick={() => ($isOpenContact = true)}
+						on:click={() => ($isOpenContact = true)}
 						class="mt-4 w-full rounded-lg bg-[#1A4C62] px-4 py-2 text-white hover:bg-[#1A4C62]"
 					>
 						Contacter l'agent
 					</button>
 				{:else}
 					<button
-						onclick={() => goto('/login')}
+						on:click={() => goto('/login')}
 						class="mt-4 w-full rounded-lg bg-[#1A4C62]/90 px-4 py-2 text-white hover:bg-[#1A4C62]"
 					>
 						Se connecter d'abord

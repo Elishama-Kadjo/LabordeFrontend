@@ -3,7 +3,8 @@
 	import type { PageData } from './$types';
 	import toast, { Toaster } from 'svelte-french-toast';
 	import { goto } from '$app/navigation';
-	let { data }: { data: PageData } = $props();
+	export let data : PageData;
+
 
 	const { form, errors, delayed, enhance } = superForm(data?.form, {
 		dataType: 'json',

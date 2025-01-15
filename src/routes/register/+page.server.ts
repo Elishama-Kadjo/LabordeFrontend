@@ -7,10 +7,6 @@ import { redirect } from '@sveltejs/kit';
 
 export const load = (async ({ cookies, locals }) => {
 
-    if (cookies.get("wb")) {
-        throw redirect(303, "/")
-    }
-
     if (locals.user) {
         throw redirect(303, "/")
     }
@@ -53,6 +49,8 @@ export const actions = {
                     status: 401
                 })
             }
+
+            //TODO: implementer apres l'incsription la connexion automatique
 
             return message(form, {
                 type: "success",
