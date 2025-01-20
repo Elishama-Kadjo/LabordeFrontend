@@ -4,7 +4,8 @@
 	import Card from '$lib/components/utils/Card.svelte';
 	import type { RealEstate } from '../../app';
     
-    let { data }: { data: PageData } = $props();
+	export let data : PageData;
+
 
     let real_estates: RealEstate[] = data.real_estates ?? [];
 

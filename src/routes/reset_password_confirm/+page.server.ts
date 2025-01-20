@@ -6,9 +6,7 @@ import { zod } from 'sveltekit-superforms/adapters';
 import { env } from '$env/dynamic/private';
 
 export const load = (async ({ cookies, locals, params, url }) => {
-    if (cookies.get("wb")) {
-        throw redirect(303, "/")
-    }
+
 
     if (locals.user) {
         throw redirect(303, "/")
@@ -25,7 +23,7 @@ export const load = (async ({ cookies, locals, params, url }) => {
 export const actions: Actions = {
     confirm_reset_password: async ({ request, params, cookies }) => {
         const formData = await request.formData();
-        const token = formData.get('token');
+        const token = formData.get('token') ?? "";
 
         const form = await superValidate(formData, zod(FormConfirmPasswordSchema));
         if (!form.valid) {

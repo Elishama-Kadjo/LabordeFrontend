@@ -5,7 +5,8 @@
 	import type { PageData } from './$types';
 	import { goto } from '$app/navigation';
 
-	let { data }: { data: PageData } = $props();
+	export let data : PageData;
+
 
 	let showPassword: boolean = false;
 	let showConfirmPassword: boolean = false;
@@ -87,14 +88,25 @@
 				<div>
 					<label for="password" class="sr-only">Mot de passe</label>
 					<div class="relative">
-						<input
+						{#if !showPassword}
+							<input
 							id="password"
-							type={showPassword ? 'text' : 'password'}
+							type='password'
 							bind:value={$form.password}
 							required
 							class="block w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500"
 							placeholder="Password"
-						/>
+							/>
+						{:else}
+							<input
+							id="password"
+							type='text'
+							bind:value={$form.password}
+							required
+							class="block w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500"
+							placeholder="Password"
+							/>
+						{/if}
 						<!-- svelte-ignore event_directive_deprecated -->
 						<button
 							type="button"
@@ -115,14 +127,28 @@
 				<div>
 					<label for="password" class="sr-only">Confirmation Mot de passe</label>
 					<div class="relative">
-						<input
+						{#if !showConfirmPassword}
+							<input
 							id="password"
-							type={showConfirmPassword ? 'text' : 'password'}
+							type='password'
 							bind:value={$form.password_confirm}
 							required
 							class="block w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500"
 							placeholder="Confirmation Mot de passe"
-						/>
+							/>
+						{:else}
+							<input
+							id="password"
+							type='text'
+							bind:value={$form.password_confirm}
+							required
+							class="block w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500"
+							placeholder="Confirmation Mot de passe"
+							/>
+						{/if}
+
+
+
 						<!-- svelte-ignore event_directive_deprecated -->
 						<button
 							type="button"

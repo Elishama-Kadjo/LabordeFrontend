@@ -4,7 +4,7 @@
 	import type { RealEstate, RealEstateFavorite } from '../../app';
 	import Card from '$lib/components/utils/Card.svelte';
 
-	let { data }: { data: PageData } = $props();
+	export let data : PageData;
 
 	let favorites: RealEstateFavorite[] = data?.favorites;
 

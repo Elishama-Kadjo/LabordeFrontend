@@ -6,9 +6,6 @@ import { env } from '$env/dynamic/private';
 
 export const load = (async ({cookies}) => {
     //TODO: si access token -> ??? 
-    const access_token = cookies.get('wb');
-
-
     let real_estates: RealEstate[] = [];
 
     const FetchFavoritesRealEstate = await fetch(`${env.URL_API}/api/realestate/getfavorites/`, {
